@@ -55,10 +55,8 @@ extension ActionsController {
             }
 
             cell.backgroundColor = .tealColor
-            cell.textLabel?.font = UIFont.systemFont(ofSize: 15) 
-         } else {
-
-        }
+            cell.textLabel?.font = UIFont.systemFont(ofSize: 15)
+         }
 
         cell.isUserInteractionEnabled = false
 
