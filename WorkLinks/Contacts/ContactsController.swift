@@ -42,6 +42,11 @@ class ContactsController: UITableViewController, UISearchBarDelegate {
 
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView.reloadData()
+    }
+
     @objc func handleAddContact() {
         let createContactController = CreateContactController()
 

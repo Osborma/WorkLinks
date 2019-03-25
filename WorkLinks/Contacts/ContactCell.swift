@@ -26,7 +26,9 @@ class ContactCell: UITableViewCell {
             }
 
             if let actions = contact?.actions?.count, let company = contact?.company   {
-                if actions > 0 {
+                if actions == 1 {
+                    companyLabel.text = "\(company) • \(actions) action"
+                } else if actions > 1 {
                     companyLabel.text = "\(company) • \(actions) actions"
                 }
             }
