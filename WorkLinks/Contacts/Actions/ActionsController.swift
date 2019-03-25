@@ -162,7 +162,7 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
 
         arrayOfTypes = findAllTypes()
 
-        if arrayOfTypes.count > 0 {
+        if !arrayOfTypes.isEmpty {
             for i in 1...arrayOfTypes.count {
                 allActions.append(contactActions.filter {  $0.type == arrayOfTypes[i - 1] })
             }
@@ -186,20 +186,30 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
         return arrayOfTypes
     }
 
+    var isCreatingNewType = false
+    var newActionType = String()
     func didAddAction(action: Action) {
 
         self.actions.append(action)
         guard let actionType = action.type else { return }
+        isCreatingNewType = false
 
-        if let index = arrayOfTypes.index(of: actionType) {
+        if let index = arrayOfTypes.index(of: actionType) { // append to exsiting type
             let row = allActions[index].count
             let insertionIndexPath = IndexPath(row: row, section: index + 1)
             allActions[index].append(action)
             tableView.insertRows(at: [insertionIndexPath], with: .middle)
-        } else {
+        } else if allActions.isEmpty { //create the first type
             arrayOfTypes = findAllTypes()
             allActions.append([action])
             tableView.reloadData()
+        } else { // create new type
+            isCreatingNewType = true
+            newActionType = actionType
+            arrayOfTypes = findAllTypes()
+            allActions.append([action])
+            let index = arrayOfTypes.count
+            tableView.insertSections([index], with: .top)
         }
     }
 
@@ -322,13 +332,19 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
                                  paddingTop: 12, paddingLeft: 16,
                                  paddingBottom: 0, paddingRight: 8,
                                  width: 0, height: 0)
+            containerView.layer.zPosition = -100
+            notesTextView.layer.zPosition = -99
             return view
         } else {
 
             if actions.count > 0 {
                 let label = UILabel()
                 label.backgroundColor = .lightBlue
-                label.text = arrayOfTypes[section - 1]
+                if isCreatingNewType {
+                    label.text = newActionType
+                } else {
+                    label.text = arrayOfTypes[section - 1]
+                }
                 label.font = UIFont.boldSystemFont(ofSize: 16)
                 label.textColor = .darkBlue
 
