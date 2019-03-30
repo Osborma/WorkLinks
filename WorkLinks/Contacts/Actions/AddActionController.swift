@@ -171,7 +171,7 @@ class AddActionController: UIViewController {
     }
 
     let actionTypeSegmentedControl: UISegmentedControl = {
-        let types = ["To Do", "Doing", "Done"]
+        let types = ["Doing","To Do", "Done"]
         let sc = UISegmentedControl(items: types)
         sc.translatesAutoresizingMaskIntoConstraints = false
         sc.tintColor = .darkBlue

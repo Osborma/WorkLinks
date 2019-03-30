@@ -172,19 +172,24 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
 
     }
 
-    var setOfTypes = Set<String>()
-    var arrayOfTypes = [] as! [String]
+    var setOfTypes = Set<String>() // Set to avoid duplicates of the same type
+    var arrayOfTypes = [] as! [String] // array as it is easier to work with
+
+    let typeOrder = ["Doing", "To Do", "Done"]
+    /// Mark: appends new action to set and updates the arrayOfTypes
     func findAllTypes() -> [String] {
         actions.forEach({ (action) in
             if let actionType = action.type {
                 setOfTypes.insert(actionType)
                 arrayOfTypes = Array(setOfTypes)
-                arrayOfTypes.sort()
+                arrayOfTypes.orderActionTypes()
             }
         })
 
         return arrayOfTypes
     }
+
+
 
     var isCreatingNewType = false
     var newActionType = String()
@@ -408,5 +413,17 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
         } else if view.frame.origin.y != 32, !isInPortaitMode {
             view.frame.origin.y = 32
         }
+    }
+}
+
+extension Array where Element == String {
+    func orderActionTypes() -> [String] {
+        let actionOrder = ["Doing", "To Do", "Done"]
+        return self.sorted(by: { (a, b) -> Bool in
+            if let first = actionOrder.index(of: a), let second = actionOrder.index(of: b) {
+                return first < second
+            }
+            return false
+        })
     }
 }
