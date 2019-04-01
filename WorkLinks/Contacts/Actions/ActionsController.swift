@@ -160,11 +160,10 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
         guard let contactActions = contact?.actions?.allObjects as? [Action] else { return }
         self.actions = contactActions
 
-        arrayOfTypes = findAllTypes()
-
+        arrayOfTypes = updatedArrayOfTypes()
         if !arrayOfTypes.isEmpty {
-            for i in 1...arrayOfTypes.count {
-                allActions.append(contactActions.filter {  $0.type == arrayOfTypes[i - 1] })
+            for i in 0...(arrayOfTypes.count - 1) {
+                allActions.append(contactActions.filter {  $0.type == arrayOfTypes[i] })
             }
         } else {
             actions = []
@@ -177,12 +176,12 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
 
     let typeOrder = ["Doing", "To Do", "Done"]
     /// Mark: appends new action to set and updates the arrayOfTypes
-    func findAllTypes() -> [String] {
+    func updatedArrayOfTypes() -> [String] {
         actions.forEach({ (action) in
             if let actionType = action.type {
                 setOfTypes.insert(actionType)
-                arrayOfTypes = Array(setOfTypes)
-                arrayOfTypes.orderActionTypes()
+                let orderedArrayOfType = Array(setOfTypes).orderActionTypes()
+                arrayOfTypes = orderedArrayOfType
             }
         })
 
@@ -193,25 +192,32 @@ class ActionsController: UITableViewController, AddActionControllerDelegate, UIT
 
     var isCreatingNewType = false
     var newActionType = String()
-    func didAddAction(action: Action) {
 
+    func didAddAction(action: Action) {
         self.actions.append(action)
         guard let actionType = action.type else { return }
         isCreatingNewType = false
 
-        if let index = arrayOfTypes.index(of: actionType) { // append to exsiting type
-            let row = allActions[index].count
-            let insertionIndexPath = IndexPath(row: row, section: index + 1)
-            allActions[index].append(action)
-            tableView.insertRows(at: [insertionIndexPath], with: .middle)
-        } else if allActions.isEmpty { //create the first type
-            arrayOfTypes = findAllTypes()
+        if allActions.isEmpty { //create the first type
+            arrayOfTypes = updatedArrayOfTypes()
             allActions.append([action])
             tableView.reloadData()
+        } else if let orderedIndex = arrayOfTypes.index(of: actionType) { // append to exsiting type
+            //find out which index it is in the view's allAction list pf lists (as this isn't guarenteed to follow the order)
+            var insertionIndex = orderedIndex
+            for i in 0...(arrayOfTypes.count - 1) { // for each section
+                if allActions[i][0].type == actionType {
+                    insertionIndex = i
+                }
+            }
+            let row = allActions[insertionIndex].count
+            let insertionIndexPath = IndexPath(row: row, section: (insertionIndex + 1))
+            allActions[insertionIndex].append(action)
+            tableView.insertRows(at: [insertionIndexPath], with: .middle)
         } else { // create new type
             isCreatingNewType = true
             newActionType = actionType
-            arrayOfTypes = findAllTypes()
+            arrayOfTypes = updatedArrayOfTypes()
             allActions.append([action])
             let index = arrayOfTypes.count
             tableView.insertSections([index], with: .top)
